@@ -77,8 +77,12 @@ else {
 		var Element = function (args) {
 			console.log('Element constructor');
 			this.color = args.color || '#000';
-			this.progress = typeof args.progress !== 'undefined' ? args.progress : 1;
+			this.progress = typeof args.progress !== 'undefined' ? args.progress : 100;
 			this.shape = new createjs.Shape();
+			this.animate = args.animate || $.noop;
+		}
+		Element.prototype.stop = function () {
+			this.animate = $.noop();
 		}
 
 		var Dot = function (args) {
@@ -94,6 +98,7 @@ else {
 		};
 		inherits(Dot, Element);
 		Dot.prototype.tick = function (canvas) {
+			this.animate();
 			var onDisplay = translateTo2D(this.x, this.y, this.z, canvas);
 			if (! onDisplay) this.shape.visible = false;
 			else {
@@ -114,6 +119,7 @@ else {
 			this.scale = args.scale || 0;
 			this.hidden = args.hidden || false;
 			this.stage = stage;
+			this.animate = args.animate || $.noop;
 
 			this.elements = args.elements || [];
 			this.elements.forEach(function (element) {
@@ -130,6 +136,7 @@ else {
 			
 		}
 		Figure.prototype.tick = function (canvas) {
+			this.animate();
 			this.elements.forEach(function (element) {
 				element.tick(canvas);
 			});
