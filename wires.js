@@ -97,15 +97,15 @@ else {
 			this.shape.graphics.beginFill(this.color).drawCircle(this.x, this.y, this.size); // !!!
 		};
 		inherits(Dot, Element);
-		Dot.prototype.tick = function (canvas) {
+		Dot.prototype.tick = function (canvas, parentFigure) {
 			this.animate();
 			var onDisplay = translateTo2D(this.x, this.y, this.z, canvas);
 			if (! onDisplay) this.shape.visible = false;
 			else {
 				this.shape.visible = true;
-				this.shape.x = canvas.stage.canvas.width / 2 + onDisplay.x;
-				this.shape.y = canvas.stage.canvas.height / 2 + onDisplay.y;
-				this.shape.scaleX = this.shape.scaleY = onDisplay.scale;
+				this.shape.x = canvas.stage.canvas.width / 2 + onDisplay.x * parentFigure.scale;
+				this.shape.y = canvas.stage.canvas.height / 2 + onDisplay.y * parentFigure.scale;
+				this.shape.scaleX = this.shape.scaleY = onDisplay.scale * parentFigure.scale;
 			}
 		}
 
@@ -116,7 +116,7 @@ else {
 			this.z = args.z || 0;
 			this.rotateX = args.rotateX || 0;
 			this.rotateY = args.rotateY || 0;
-			this.scale = args.scale || 0;
+			this.scale = args.scale || 1;
 			this.hidden = args.hidden || false;
 			this.stage = stage;
 			this.animate = args.animate || $.noop;
@@ -129,16 +129,11 @@ else {
 		Figure.prototype.rotate = function () {
 
 		}
-		Figure.prototype.move = function () {
-			
-		}
-		Figure.prototype.scale = function () {
-			
-		}
 		Figure.prototype.tick = function (canvas) {
+			var figure = this;
 			this.animate();
 			this.elements.forEach(function (element) {
-				element.tick(canvas);
+				element.tick(canvas, figure);
 			});
 		}
 		Figure.prototype.render = function () {
