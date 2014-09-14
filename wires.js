@@ -49,6 +49,46 @@ else {
 			};
 		}
 
+		var getRotatedCoord = function (x, y, z, rotateX, rotateY, rotateZ) {
+			var x = x || 0;
+			var y = y || 0;
+			var z = z || 0;
+
+			var rotateX = rotateX || 0;
+			var rotateY = rotateY || 0;
+			var rotateZ = rotateZ || 0;
+
+			// rotateX
+			if (rotateX) {
+				var deg = Math.atan2(z, y) - rotateX;
+				var r = Math.sqrt(y*y + z*z);
+				y = r * Math.cos(deg);
+				z = r * Math.sin(deg);
+			}
+
+			// rotateY
+			if (rotateY) {
+				var deg = Math.atan2(x, z) - rotateY;
+				var r = Math.sqrt(z*z + x*x);
+				z = r * Math.cos(deg);
+				x = r * Math.sin(deg);
+			}
+
+			// rotateZ
+			if (rotateZ) {
+				var deg = Math.atan2(y, x) - rotateZ;
+				var r = Math.sqrt(x*x + y*y);
+				x = r * Math.cos(deg);
+				y = r * Math.sin(deg);
+			}
+
+			return {
+				x: x,
+				y: y,
+				z: z
+			}
+		}
+
 		var Canvas = function (id) {
 			var canvasObject = document.getElementById(id);
 			if (! canvasObject) {
@@ -94,17 +134,21 @@ else {
 			this.y = args.y || 0;
 			this.z = args.z || 0;
 			this.size = args.size || 1;
-			this.shape.graphics.beginFill(this.color).drawCircle(this.x, this.y, this.size); // !!!
+			this.shape.graphics.beginFill(this.color).drawCircle(0, 0, this.size); // !!!
 		};
 		inherits(Dot, Element);
 		Dot.prototype.tick = function (canvas, parentFigure) {
 			this.animate();
-			var onDisplay = translateTo2D(this.x, this.y, this.z, canvas);
+			var rotatedCoord = getRotatedCoord(this.x, this.y, this.z, parentFigure.rotateX, parentFigure.rotateY, parentFigure.rotateZ);
+
+			var onDisplay = translateTo2D(rotatedCoord.x, rotatedCoord.y, rotatedCoord.z, canvas);
+
 			if (! onDisplay) this.shape.visible = false;
 			else {
 				this.shape.visible = true;
-				this.shape.x = canvas.stage.canvas.width / 2 + onDisplay.x * parentFigure.scale;
-				this.shape.y = canvas.stage.canvas.height / 2 + onDisplay.y * parentFigure.scale;
+				this.shape.x = canvas.stage.canvas.width / 2 + (onDisplay.x * parentFigure.scale);
+				this.shape.y = canvas.stage.canvas.height / 2 + (onDisplay.y * parentFigure.scale);
+				this.shape.regX = this.shape.regY = onDisplay.scale * parentFigure.scale / 2;
 				this.shape.scaleX = this.shape.scaleY = onDisplay.scale * parentFigure.scale;
 			}
 		}
@@ -116,6 +160,7 @@ else {
 			this.z = args.z || 0;
 			this.rotateX = args.rotateX || 0;
 			this.rotateY = args.rotateY || 0;
+			this.rotateZ = args.rotateZ || 0;
 			this.scale = args.scale || 1;
 			this.hidden = args.hidden || false;
 			this.stage = stage;
@@ -125,9 +170,6 @@ else {
 			this.elements.forEach(function (element) {
 				this.stage.addChild(element.shape);
 			}, this);
-		}
-		Figure.prototype.rotate = function () {
-
 		}
 		Figure.prototype.tick = function (canvas) {
 			var figure = this;
