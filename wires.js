@@ -130,6 +130,7 @@ else {
 			console.log('Dot constructor', this)
 
 			var args = args || {};
+			this.perspective = true;
 			this.x = args.x || 0;
 			this.y = args.y || 0;
 			this.z = args.z || 0;
@@ -149,7 +150,7 @@ else {
 				this.shape.x = canvas.stage.canvas.width / 2 + (onDisplay.x * parentFigure.scale);
 				this.shape.y = canvas.stage.canvas.height / 2 + (onDisplay.y * parentFigure.scale);
 				this.shape.regX = this.shape.regY = onDisplay.scale * parentFigure.scale / 2;
-				this.shape.scaleX = this.shape.scaleY = onDisplay.scale * parentFigure.scale;
+				if (this.perspective) this.shape.scaleX = this.shape.scaleY = onDisplay.scale * parentFigure.scale;
 			}
 		}
 
@@ -165,11 +166,7 @@ else {
 			this.hidden = args.hidden || false;
 			this.stage = stage;
 			this.animate = args.animate || $.noop;
-
-			this.elements = args.elements || [];
-			this.elements.forEach(function (element) {
-				this.stage.addChild(element.shape);
-			}, this);
+			this.addElements(args.elements);
 		}
 		Figure.prototype.tick = function (canvas) {
 			var figure = this;
@@ -180,6 +177,13 @@ else {
 		}
 		Figure.prototype.render = function () {
 			
+		}
+		Figure.prototype.addElements = function (elements) {
+			if (! $.isArray(elements)) elements = [elements];
+			this.elements = elements || [];
+			this.elements.forEach(function (element) {
+				this.stage.addChild(element.shape);
+			}, this);
 		}
 
 		return Wires;
