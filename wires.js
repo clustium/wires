@@ -99,12 +99,14 @@ else {
 			this.stage = new createjs.Stage(canvasObject);
 			this.figures = [];
 			this.count = 0;
+			this.tick = $.noob;
 
 			createjs.Ticker.addEventListener('tick', $.proxy(this._tick, this));
+			createjs.Ticker.addEventListener('tick', $.proxy(function () { this.tick() }, this));
 		}
 		Canvas.prototype._tick = function () {
 			this.figures.forEach(function (figure) {
-				figure.tick(this);
+				figure._tick(this);
 			}, this);
 			this.stage.update();
 		}
@@ -170,7 +172,7 @@ else {
 			this.animate = args.animate || $.noop;
 			this.addElements(args.elements);
 		}
-		Figure.prototype.tick = function (canvas) {
+		Figure.prototype._tick = function (canvas) {
 			var figure = this;
 			this.animate();
 			this.elements.forEach(function (element) {
