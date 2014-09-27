@@ -200,6 +200,7 @@ else {
 		var Figure = function (args, stage) {
 			var args = args || {};
 			this.container = new createjs.Container();
+			stage.addChild(this.container);
 			this.x = args.x || 0;
 			this.y = args.y || 0;
 			this.z = args.z || 0;
@@ -212,6 +213,7 @@ else {
 			this.animate = args.animate || $.noop;
 			this.addElements(args.elements);
 			this.zIndex(args.zIndex || 1);
+			// this.container.hitArea = (new createjs.Shape()).graphics.beginFill("#000").drawCircle(0, 0, this.size); //TODO
 		}
 		Figure.prototype._tick = function (canvas) {
 			var figure = this;
@@ -229,7 +231,7 @@ else {
 			this.elements = elements || [];
 			this.elements.forEach(function (element) {
 				element.figure = figure;
-				this.stage.addChild(element.shape);
+				this.container.addChild(element.shape);
 			}, this);
 		}
 		Figure.prototype.zIndex = function (index) {
