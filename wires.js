@@ -98,6 +98,7 @@ else {
 
 			this.stage = new createjs.Stage(canvasObject);
 			this.figures = [];
+			this.count = 0;
 
 			createjs.Ticker.addEventListener('tick', $.proxy(this._tick, this));
 		}
@@ -106,6 +107,7 @@ else {
 				figure.tick(this);
 			}, this);
 			this.stage.update();
+			time = (new Date).getTime();
 		}
 		Canvas.prototype.addFigure = function (args) {
 			var figure = new Figure(args, this.stage);
@@ -130,6 +132,7 @@ else {
 			console.log('Dot constructor', this)
 
 			var args = args || {};
+			this.figure = null;
 			this.perspective = true;
 			this.x = args.x || 0;
 			this.y = args.y || 0;
@@ -142,7 +145,7 @@ else {
 			this.animate();
 			var rotatedCoord = getRotatedCoord(this.x, this.y, this.z, parentFigure.rotateX, parentFigure.rotateY, parentFigure.rotateZ);
 
-			var onDisplay = translateTo2D(rotatedCoord.x, rotatedCoord.y, rotatedCoord.z, canvas);
+			var onDisplay = translateTo2D(this.figure.x + rotatedCoord.x, this.figure.y + rotatedCoord.y, this.figure.z + rotatedCoord.z, canvas);
 
 			if (! onDisplay) this.shape.visible = false;
 			else {
@@ -180,8 +183,10 @@ else {
 		}
 		Figure.prototype.addElements = function (elements) {
 			if (! $.isArray(elements)) elements = [elements];
+			var figure = this;
 			this.elements = elements || [];
 			this.elements.forEach(function (element) {
+				element.figure = figure;
 				this.stage.addChild(element.shape);
 			}, this);
 		}
