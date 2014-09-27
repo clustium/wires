@@ -160,6 +160,7 @@ else {
 
 		var Figure = function (args, stage) {
 			var args = args || {};
+			this.container = new createjs.Container();
 			this.x = args.x || 0;
 			this.y = args.y || 0;
 			this.z = args.z || 0;
@@ -171,6 +172,7 @@ else {
 			this.stage = stage;
 			this.animate = args.animate || $.noop;
 			this.addElements(args.elements);
+			this.zIndex(args.zIndex || 1);
 		}
 		Figure.prototype._tick = function (canvas) {
 			var figure = this;
@@ -190,6 +192,10 @@ else {
 				element.figure = figure;
 				this.stage.addChild(element.shape);
 			}, this);
+		}
+		Figure.prototype.zIndex = function (index) {
+			this.stage.setChildIndex(this.container, index);
+			// console.log(this.stage.getChildIndex(this.container)) TODO なぜか常に -1 になる
 		}
 
 		return Wires;
