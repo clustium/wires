@@ -123,6 +123,8 @@ else {
 			this.progress = typeof args.progress !== 'undefined' ? args.progress : 100;
 			this.shape = new createjs.Shape();
 			this.animate = args.animate || $.noop;
+			this.figure = null;
+			this.perspective = true;
 		}
 		Element.prototype.stop = function () {
 			this.animate = $.noop();
@@ -133,8 +135,6 @@ else {
 			console.log('Dot constructor', this)
 
 			var args = args || {};
-			this.figure = null;
-			this.perspective = true;
 			this.x = args.x || 0;
 			this.y = args.y || 0;
 			this.z = args.z || 0;
@@ -146,15 +146,17 @@ else {
 			this.animate();
 			var rotatedCoord = getRotatedCoord(this.x, this.y, this.z, parentFigure.rotateX, parentFigure.rotateY, parentFigure.rotateZ);
 
-			var onDisplay = translateTo2D(this.figure.x + rotatedCoord.x, this.figure.y + rotatedCoord.y, this.figure.z + rotatedCoord.z, canvas);
+			var on2dCoords = translateTo2D(this.figure.x + rotatedCoord.x, this.figure.y + rotatedCoord.y, this.figure.z + rotatedCoord.z, canvas);
 
-			if (! onDisplay) this.shape.visible = false;
+			if (! on2dCoords) this.shape.visible = false;
 			else {
+				var displayX = canvas.stage.canvas.width / 2 + (on2dCoords.x * parentFigure.scale);
+				var displayY = canvas.stage.canvas.height / 2 + (on2dCoords.y * parentFigure.scale);
 				this.shape.visible = true;
-				this.shape.x = canvas.stage.canvas.width / 2 + (onDisplay.x * parentFigure.scale);
-				this.shape.y = canvas.stage.canvas.height / 2 + (onDisplay.y * parentFigure.scale);
-				this.shape.regX = this.shape.regY = onDisplay.scale * parentFigure.scale / 2;
-				if (this.perspective) this.shape.scaleX = this.shape.scaleY = onDisplay.scale * parentFigure.scale;
+				this.shape.x = displayX;
+				this.shape.y = displayY;
+				this.shape.regX = this.shape.regY = on2dCoords.scale * parentFigure.scale / 2;
+				if (this.perspective) this.shape.scaleX = this.shape.scaleY = on2dCoords.scale * parentFigure.scale;
 			}
 		}
 
