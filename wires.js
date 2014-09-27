@@ -107,7 +107,6 @@ else {
 				figure.tick(this);
 			}, this);
 			this.stage.update();
-			time = (new Date).getTime();
 		}
 		Canvas.prototype.addFigure = function (args) {
 			var figure = new Figure(args, this.stage);
