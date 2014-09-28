@@ -26,46 +26,47 @@ else {
 
 			curve : function (args) {
 				return new Curve(args);
+			},
+
+			translateTo2D: function (x, y, z, canvas) {
+				var displayX, displayY;
+				var depth = 400;
+				var distance = 500;
+				if (canvas && canvas.config) {
+					depth = canvas.config.depth;
+					distance = canvas.config.distance;
+				}
+
+				if (z <= -distance) return false;
+
+				return {
+					x: x / (z + distance) * depth,
+					y: y / (z + distance) * depth,
+					scale : distance / (z + distance)
+				};
+			},
+
+			translateTo3D: function (x, y, z, canvas) {
+				var displayX, displayY;
+				var depth = 400;
+				var distance = 500;
+				if (canvas && canvas.config) {
+					depth = canvas.config.depth;
+					distance = canvas.config.distance;
+				}
+				var z = z || 0;
+				if (z <= -distance) return false;
+
+				return {
+					x: x * (z + distance) / depth,
+					y: y * (z + distance) / depth,
+					z: z
+				};
 			}
+
 		}
 
 		/* === private === */
-
-		var translateTo2D = function (x, y, z, canvas) {
-			var displayX, displayY;
-			var depth = 400;
-			var distance = 500;
-			if (canvas && canvas.config) {
-				depth = canvas.config.depth;
-				distance = canvas.config.distance;
-			}
-
-			if (z <= -distance) return false;
-
-			return {
-				x: x / (z + distance) * depth,
-				y: y / (z + distance) * depth,
-				scale : distance / (z + distance)
-			};
-		}
-
-		var translateTo3D = function (x, y, z, canvas) {
-			var displayX, displayY;
-			var depth = 400;
-			var distance = 500;
-			if (canvas && canvas.config) {
-				depth = canvas.config.depth;
-				distance = canvas.config.distance;
-			}
-			var z = z || 0;
-			if (z <= -distance) return false;
-
-			return {
-				x: x * (z + distance) / depth,
-				y: y * (z + distance) / depth,
-				z: z
-			};
-		}
 
 		var getRotatedCoord = function (x, y, z, rotateX, rotateY, rotateZ) {
 			var x = x || 0;
@@ -136,7 +137,6 @@ else {
 		}
 
 		var Element = function (args) {
-			console.log('Element constructor');
 			this.color = args.color || '#000';
 			this.progress = typeof args.progress !== 'undefined' ? args.progress : 100;
 			this.shape = new createjs.Shape();
@@ -150,7 +150,6 @@ else {
 
 		var Dot = function (args) {
 			Element.call(this, args);
-			console.log('Dot constructor', this)
 
 			var args = args || {};
 			this.x = args.x || 0;
@@ -164,7 +163,7 @@ else {
 			this.animate();
 			var rotatedCoord = getRotatedCoord(this.x, this.y, this.z, parentFigure.rotateX, parentFigure.rotateY, parentFigure.rotateZ);
 
-			var on2dCoords = translateTo2D(this.figure.x + rotatedCoord.x, this.figure.y + rotatedCoord.y, this.figure.z + rotatedCoord.z, canvas);
+			var on2dCoords = Wires.translateTo2D(this.figure.x + rotatedCoord.x, this.figure.y + rotatedCoord.y, this.figure.z + rotatedCoord.z, canvas);
 
 			if (! on2dCoords) this.shape.visible = false;
 			else {
@@ -180,7 +179,6 @@ else {
 
 		var Line = function (args) {
 			Element.call(this, args);
-			console.log('Line constructor', this)
 
 			var args = args || {};
 			this.stX = args.stX || 0;
@@ -190,7 +188,7 @@ else {
 			this.enY = args.enY || 0;
 			this.enZ = args.enZ || 0;
 			this.width = args.width || 1;
-			this.shape.graphics.beginFill(this.color).moveTo(this.stX, this.stY).lineTo(this.enX, this.enY).endStroke();
+			this.shape.graphics.beginFill(this.color).moveTo(this.stX, this.stY).lineTo(this.enX, this.enY).endStroke().closePath;
 		};
 		inherits(Line, Element);
 		Line.prototype.tick = function (canvas, parentFigure) {
@@ -198,8 +196,8 @@ else {
 			var rotatedStCoord = getRotatedCoord(this.stX, this.stY, this.stZ, parentFigure.rotateX, parentFigure.rotateY, parentFigure.rotateZ);
 			var rotatedEnCoord = getRotatedCoord(this.enX, this.enY, this.enZ, parentFigure.rotateX, parentFigure.rotateY, parentFigure.rotateZ);
 
-			var on2dCoordsSt = translateTo2D(this.figure.x + rotatedStCoord.x, this.figure.y + rotatedStCoord.y, this.figure.z + rotatedStCoord.z, canvas);
-			var on2dCoordsEn = translateTo2D(this.figure.x + rotatedEnCoord.x, this.figure.y + rotatedEnCoord.y, this.figure.z + rotatedEnCoord.z, canvas);
+			var on2dCoordsSt = Wires.translateTo2D(this.figure.x + rotatedStCoord.x, this.figure.y + rotatedStCoord.y, this.figure.z + rotatedStCoord.z, canvas);
+			var on2dCoordsEn = Wires.translateTo2D(this.figure.x + rotatedEnCoord.x, this.figure.y + rotatedEnCoord.y, this.figure.z + rotatedEnCoord.z, canvas);
 
 			if (! on2dCoordsSt && ! on2dCoordsEn) this.shape.visible = false;
 			else {
@@ -207,6 +205,7 @@ else {
 				var displayStY = canvas.stage.canvas.height / 2 + (on2dCoordsSt.y * parentFigure.scale);
 				var displayEnX = canvas.stage.canvas.width / 2 + (on2dCoordsEn.x * parentFigure.scale);
 				var displayEnY = canvas.stage.canvas.height / 2 + (on2dCoordsEn.y * parentFigure.scale);
+
 				this.shape.graphics.clear().moveTo(displayStX, displayStY).beginStroke(this.color).lineTo(displayEnX, displayEnY).endStroke();
 				this.shape.visible = true;
 				this.shape.regX = this.shape.regY = /* on2dCoords.scale * */parentFigure.scale / 2;
