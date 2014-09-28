@@ -49,6 +49,24 @@ else {
 			};
 		}
 
+		var translateTo3D = function (x, y, z, canvas) {
+			var displayX, displayY;
+			var depth = 400;
+			var distance = 500;
+			if (canvas && canvas.config) {
+				depth = canvas.config.depth;
+				distance = canvas.config.distance;
+			}
+			var z = z || 0;
+			if (z <= -distance) return false;
+
+			return {
+				x: x * (z + distance) / depth,
+				y: y * (z + distance) / depth,
+				z: z
+			};
+		}
+
 		var getRotatedCoord = function (x, y, z, rotateX, rotateY, rotateZ) {
 			var x = x || 0;
 			var y = y || 0;
