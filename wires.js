@@ -120,7 +120,7 @@ else {
 			this.stage = new createjs.Stage(canvasObject);
 			this.figures = [];
 			this.count = 0;
-			this.tick = $.noob;
+			this.tick = $.noop;
 
 			createjs.Ticker.addEventListener('tick', $.proxy(this._tick, this));
 		}
@@ -153,14 +153,18 @@ else {
 			Element.call(this, args);
 
 			var args = args || {};
+			this.type = 'dot';
 			this.x = args.x || 0;
 			this.y = args.y || 0;
 			this.z = args.z || 0;
 			this.size = args.size || 1;
 			this.shape.graphics.beginFill(this.color).drawCircle(0, 0, this.size); // !!!
+			this.customTick = args.tick || $.noop;
 		};
 		inherits(Dot, Element);
 		Dot.prototype.tick = function (canvas, parentFigure) {
+			$.proxy(this.customTick(), this);
+
 			this.animate();
 			var rotatedCoord = getRotatedCoord(this.x, this.y, this.z, parentFigure.rotateX, parentFigure.rotateY, parentFigure.rotateZ);
 
@@ -182,20 +186,48 @@ else {
 			Element.call(this, args);
 
 			var args = args || {};
+			this.type = 'line';
 			this.stX = args.stX || 0;
 			this.stY = args.stY || 0;
 			this.stZ = args.stZ || 0;
 			this.enX = args.enX || 0;
 			this.enY = args.enY || 0;
 			this.enZ = args.enZ || 0;
+			this.stXOffset = 0;
+			this.stYOffset = 0;
+			this.stZOffset = 0;
+			this.enXOffset = 0;
+			this.enYOffset = 0;
+			this.enZOffset = 0;
 			this.width = args.width || 1;
 			this.shape.graphics.beginFill(this.color).moveTo(this.stX, this.stY).lineTo(this.enX, this.enY).endStroke().closePath;
+			this.customTick = args.tick || $.noop;
 		};
 		inherits(Line, Element);
+		Line.prototype.getStX = function () {
+			return this.stX + this.stXOffset;
+		}
+		Line.prototype.getStY = function () {
+			return this.stY + this.stYOffset;
+		}
+		Line.prototype.getStZ = function () {
+			return this.stZ + this.stZOffset;
+		}
+		Line.prototype.getEnX = function () {
+			return this.enX + this.enXOffset;
+		}
+		Line.prototype.getEnY = function () {
+			return this.enY + this.enYOffset;
+		}
+		Line.prototype.getEnZ = function () {
+			return this.enZ + this.enZOffset;
+		}
 		Line.prototype.tick = function (canvas, parentFigure) {
+			$.proxy(this.customTick(), this);
+
 			this.animate();
-			var rotatedStCoord = getRotatedCoord(this.stX, this.stY, this.stZ, parentFigure.rotateX, parentFigure.rotateY, parentFigure.rotateZ);
-			var rotatedEnCoord = getRotatedCoord(this.enX, this.enY, this.enZ, parentFigure.rotateX, parentFigure.rotateY, parentFigure.rotateZ);
+			var rotatedStCoord = getRotatedCoord(this.getStX(), this.getStY(), this.getStZ(), parentFigure.rotateX, parentFigure.rotateY, parentFigure.rotateZ);
+			var rotatedEnCoord = getRotatedCoord(this.getEnX(), this.getEnY(), this.getEnZ(), parentFigure.rotateX, parentFigure.rotateY, parentFigure.rotateZ);
 
 			var on2dCoordsSt = Wires.translateTo2D(this.figure.x + rotatedStCoord.x, this.figure.y + rotatedStCoord.y, this.figure.z + rotatedStCoord.z, canvas);
 			var on2dCoordsEn = Wires.translateTo2D(this.figure.x + rotatedEnCoord.x, this.figure.y + rotatedEnCoord.y, this.figure.z + rotatedEnCoord.z, canvas);
