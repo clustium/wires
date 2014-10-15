@@ -123,7 +123,6 @@ else {
 			this.tick = $.noob;
 
 			createjs.Ticker.addEventListener('tick', $.proxy(this._tick, this));
-			createjs.Ticker.addEventListener('tick', $.proxy(function () { this.tick() }, this));
 		}
 		Canvas.prototype._tick = function () {
 			this.figures.forEach(function (figure) {
