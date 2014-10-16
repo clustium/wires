@@ -136,6 +136,26 @@ else {
 
 			return figure;
 		}
+		Canvas.prototype.addImage = function (image, x, y, scale, loadFunc) {
+			var loadFunc = loadFunc || $.noop; // called when loading complete
+
+			// preloadJS の使用周りは処理の改善が必要
+			var stage = this.stage;
+			var queue = new createjs.LoadQueue();
+			var bitmap = new createjs.Bitmap(image);
+			queue.addEventListener("fileload", function (e) {
+				bitmap.x = x + stage.canvas.width / 2;
+				bitmap.y = y + stage.canvas.height / 2;
+				if (scale) bitmap.scaleX = bitmap.scaleY = scale;
+
+				stage.addChild(bitmap);
+				stage.update();
+
+				loadFunc(bitmap);
+			});
+			queue.loadFile(image);
+			return bitmap;
+		}
 
 		var Element = function (args) {
 			this.color = args.color || '#000';
