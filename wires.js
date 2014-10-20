@@ -47,8 +47,8 @@ else {
 			},
 
 			translateTo3D: function (x, y, z, canvas) {
-				var x = x - $('#canvas').width()/2; //TODO
-				var y = y - $('#canvas').height()/2;
+				var x = x - canvas.stage.canvas.width/2; //TODO
+				var y = y - canvas.stage.canvas.height/2;
 				var displayX, displayY;
 				var depth = 400;
 				var distance = 500;
