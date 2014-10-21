@@ -151,7 +151,7 @@ else {
 				stage.addChild(bitmap);
 				stage.update();
 
-				loadFunc(bitmap);
+				loadFunc(bitmap, stage);
 			});
 			queue.loadFile(image);
 			return bitmap;
