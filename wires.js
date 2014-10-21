@@ -12,8 +12,8 @@ else {
 		/* === public === */
 
 		var Wires = {
-			newCanvas: function (id) {
-				return new Canvas(id);
+			newCanvas: function (id, opacity) {
+				return new Canvas(id, opacity);
 			},
 
 			dot : function (args) {
@@ -110,14 +110,16 @@ else {
 			}
 		}
 
-		var Canvas = function (id) {
+		var Canvas = function (id, opacity) {
 			var canvasObject = document.getElementById(id);
+			var opacity = typeof opacity == 'undefined' ? 1 : opacity;
 			if (! canvasObject) {
 				console.error('Canvas not found.');
 				return false;
 			}
 
 			this.stage = new createjs.Stage(canvasObject);
+			this.stage.alpha = opacity;
 			this.figures = [];
 			this.count = 0;
 			this.tick = $.noop;
