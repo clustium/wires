@@ -137,7 +137,6 @@ else {
 		}
 		Canvas.prototype._tick = function () {
 			if (this.stopWhenOutOfScreen && !this.onScreen) return;
-			console.log(this.canvasElement.id, 'tick')
 			this.figures.forEach(function (figure) {
 				figure._tick(this);
 			}, this);
