@@ -12,8 +12,8 @@ else {
 		/* === public === */
 
 		var Wires = {
-			newCanvas: function (id, opacity) {
-				return new Canvas(id, opacity);
+			newCanvas: function (id, opacity, stopWhenOutOfScreen) {
+				return new Canvas(id, opacity, stopWhenOutOfScreen);
 			},
 
 			dot : function (args) {
@@ -110,23 +110,34 @@ else {
 			}
 		}
 
-		var Canvas = function (id, opacity) {
-			var canvasObject = document.getElementById(id);
+		var Canvas = function (id, opacity, stopWhenOutOfScreen) {
+			this.canvasElement = document.getElementById(id);
 			var opacity = typeof opacity == 'undefined' ? 1 : opacity;
-			if (! canvasObject) {
+			if (! this.canvasElement) {
 				console.error('Canvas not found.');
 				return false;
 			}
 
-			this.stage = new createjs.Stage(canvasObject);
+			this.stage = new createjs.Stage(this.canvasElement);
 			this.stage.alpha = opacity;
 			this.figures = [];
 			this.count = 0;
 			this.tick = $.noop;
+			this.stopWhenOutOfScreen = stopWhenOutOfScreen;
+			this.onScreen = this.isOnScreen();
+
+			if (this.stopWhenOutOfScreen) {
+				var obj = this;
+				$(window).on('scroll', function () {
+					obj.onScreen = obj.isOnScreen();
+				})
+			}
 
 			createjs.Ticker.addEventListener('tick', $.proxy(this._tick, this));
 		}
 		Canvas.prototype._tick = function () {
+			if (this.stopWhenOutOfScreen && !this.onScreen) return;
+			console.log(this.canvasElement.id, 'tick')
 			this.figures.forEach(function (figure) {
 				figure._tick(this);
 			}, this);
@@ -157,6 +168,12 @@ else {
 			});
 			queue.loadFile(image);
 			return bitmap;
+		}
+		Canvas.prototype.isOnScreen = function () {
+			var $element = $(this.canvasElement);
+			if ($element.offset().top < $(window).scrollTop() + $(window).height()
+				&& $(window).scrollTop() < $element.offset().top + $element.height()) return true;
+			else return false;
 		}
 
 		var Element = function (args) {
