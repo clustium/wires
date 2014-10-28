@@ -324,7 +324,6 @@ else {
 		}
 		Figure.prototype.zIndex = function (index) {
 			this.stage.setChildIndex(this.container, index);
-			// console.log(this.stage.getChildIndex(this.container)) TODO なぜか常に -1 になる
 		}
 
 		return Wires;
