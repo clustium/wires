@@ -301,14 +301,17 @@ else {
 			this.animate = args.animate || $.noop;
 			this.addElements(args.elements);
 			this.zIndex(args.zIndex || 1);
-			// this.container.hitArea = (new createjs.Shape()).graphics.beginFill("#000").drawCircle(0, 0, this.size); //TODO
+			this.updated = true;
 		}
 		Figure.prototype._tick = function (canvas) {
 			var figure = this;
 			this.animate();
-			this.elements.forEach(function (element) {
-				element.tick(canvas, figure);
-			});
+			if (this.updated) {
+				this.updated = false;
+				this.elements.forEach(function (element) {
+					element.tick(canvas, figure);
+				});
+			}
 		}
 		Figure.prototype.render = function () {
 			
