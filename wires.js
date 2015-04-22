@@ -155,7 +155,12 @@ else {
 			var stage = this.stage;
 			var queue = new createjs.LoadQueue();
 			var bitmap = new createjs.Bitmap(image);
-			queue.addEventListener("fileload", function (e) {
+			queue.addEventListener("fileload", function fileload(e) {
+				if (! bitmap.image.width) {
+					setTimeout(fileload, 100);
+					console.log('waiting...');
+					return;
+				}
 				bitmap.x = x + stage.canvas.width / 2;
 				bitmap.y = y + stage.canvas.height / 2;
 				if (scale) bitmap.scaleX = bitmap.scaleY = scale;
