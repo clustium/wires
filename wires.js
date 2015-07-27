@@ -156,7 +156,8 @@ else {
 			var queue = new createjs.LoadQueue();
 			var bitmap = new createjs.Bitmap(image);
 			queue.addEventListener("fileload", function fileload(e) {
-				if (! bitmap.image.width) {
+				console.log("width", bitmap.image.width);
+				if (! bitmap.image.width || bitmap.image.width == 4294967295) { // fix for firefox
 					setTimeout(fileload, 100);
 					console.log('waiting...');
 					return;
